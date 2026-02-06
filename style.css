@@ -262,6 +262,66 @@ h3 {
     font-size: 1.1em;
 }
 
+/* Form Styling */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #4a90e2;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px;
+    font-size: 1em;
+    border: 2px solid #4a90e2;
+    border-radius: 8px;
+    background: #2a2a3e;
+    color: white;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #27ae60;
+    box-shadow: 0 0 10px rgba(39, 174, 96, 0.3);
+}
+
+.form-input::placeholder {
+    color: #888;
+}
+
+textarea.form-input {
+    resize: vertical;
+    font-family: inherit;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.form-actions button {
+    flex: 1;
+}
+
+.shelf-display {
+    text-align: center;
+    font-size: 1.1em;
+    color: #888;
+    margin-bottom: 20px;
+}
+
 /* Settings */
 .settings-section {
     background: #2a2a3e;
