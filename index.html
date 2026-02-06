@@ -12,6 +12,7 @@
     <div class="container">
         <header>
             <h1>QuickShelf</h1>
+            <button id="btnThemePicker" class="theme-icon" title="Change Theme">⚙</button>
         </header>
 
         <!-- Main Menu -->
@@ -121,6 +122,40 @@
                 <button id="btnPrintSheet" class="btn btn-success">PRINT</button>
                 <button id="btnSavePDF" class="btn btn-primary">SAVE PDF</button>
                 <button id="btnCancelCount" class="btn btn-secondary">BACK</button>
+            </div>
+        </div>
+
+        <!-- Theme Picker Modal -->
+        <div id="themeModal" class="modal">
+            <div class="modal-content">
+                <h2>Choose Theme</h2>
+                <div class="theme-grid">
+                    <button class="theme-option" data-theme="retro-beige">
+                        <div class="theme-preview retro-beige-preview"></div>
+                        <span>Retro Beige</span>
+                    </button>
+                    <button class="theme-option" data-theme="dark-navy">
+                        <div class="theme-preview dark-navy-preview"></div>
+                        <span>Dark Navy</span>
+                    </button>
+                    <button class="theme-option" data-theme="forest">
+                        <div class="theme-preview forest-preview"></div>
+                        <span>Forest</span>
+                    </button>
+                    <button class="theme-option" data-theme="slate">
+                        <div class="theme-preview slate-preview"></div>
+                        <span>Slate</span>
+                    </button>
+                    <button class="theme-option" data-theme="sunset">
+                        <div class="theme-preview sunset-preview"></div>
+                        <span>Sunset</span>
+                    </button>
+                    <button class="theme-option" data-theme="pastel-pink">
+                        <div class="theme-preview pastel-pink-preview"></div>
+                        <span>Pastel Pink</span>
+                    </button>
+                </div>
+                <button id="btnCloseTheme" class="btn btn-secondary">CLOSE</button>
             </div>
         </div>
 
