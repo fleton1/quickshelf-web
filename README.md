@@ -7,6 +7,7 @@
 - **ADD mode**: Scan barcodes with a hand scanner → select shelf → fill in details (description, qty, labels, etc.)
 - **FIND mode**: Search inventory, mark items complete (✓), delete items (✕)
 - **SHEETS**: Select items → print or save count sheet PDF with pre-filled data
+- **Themes**: 6 color themes (⚙ icon in top-right corner)
 - **Settings**: Configure number of shelves + custom shelf names
 - **CLEAR**: Delete all inventory items
 - **Offline support**: Works without internet connection via PWA
@@ -119,6 +120,17 @@ The PDF is landscape letter format with 11 columns matching the Android app:
 - Blank fields are left empty for manual entry
 - Alternating row colors for easy reading
 - Ready for laser printer
+
+### Themes
+1. Click the **⚙** icon in the top-right corner
+2. Choose from 6 themes:
+   - **Retro Beige** - Warm cream background, muted browns
+   - **Dark Navy** - Deep navy (default)
+   - **Forest** - Dark green with teal accents
+   - **Slate** - Cool blue-grey
+   - **Sunset** - Rich brown with warm orange
+   - **Pastel Pink** - Soft pink with sage and periwinkle
+3. Theme preference saved automatically
 
 ### Clear All
 1. Click **CLEAR**
