@@ -1,11 +1,11 @@
 const CACHE_NAME = 'quickshelf-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/app.js',
-  '/db.js',
-  '/manifest.json'
+  './',
+  './index.html',
+  './style.css',
+  './app.js',
+  './db.js',
+  './manifest.json'
 ];
 
 // Install event - cache files
