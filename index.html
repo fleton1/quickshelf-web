@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>QuickShelf</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>QuickShelf</h1>
+        </header>
+
+        <!-- Main Menu -->
+        <div id="mainMenu" class="menu active">
+            <button id="btnAdd" class="btn btn-primary">ADD</button>
+            <button id="btnFind" class="btn btn-primary">FIND</button>
+            <button id="btnSettings" class="btn btn-secondary">SETTINGS</button>
+            <button id="btnClear" class="btn btn-danger">CLEAR</button>
+        </div>
+
+        <!-- Add Mode -->
+        <div id="addMode" class="screen">
+            <h2>Scan Barcode</h2>
+            <input
+                type="text"
+                id="scanInput"
+                class="scan-input"
+                placeholder="Focus here and scan barcode..."
+                autocomplete="off"
+                autofocus
+            >
+            <p class="hint">Hand scanner will type into this field</p>
+            <button id="btnCancelAdd" class="btn btn-secondary">BACK</button>
+        </div>
+
+        <!-- Shelf Picker -->
+        <div id="shelfPicker" class="screen">
+            <h2>Select Shelf</h2>
+            <p class="barcode-display" id="currentBarcode"></p>
+            <div class="shelf-grid" id="shelfGrid"></div>
+            <button id="btnCancelShelf" class="btn btn-secondary">BACK</button>
+        </div>
+
+        <!-- Find Mode -->
+        <div id="findMode" class="screen">
+            <h2>Find Item</h2>
+            <input
+                type="text"
+                id="searchInput"
+                class="search-input"
+                placeholder="Type to search..."
+                autocomplete="off"
+            >
+            <div id="resultsContainer" class="results-container"></div>
+            <button id="btnCancelFind" class="btn btn-secondary">BACK</button>
+        </div>
+
+        <!-- Settings Mode -->
+        <div id="settingsMode" class="screen">
+            <h2>Settings</h2>
+            <div class="settings-section">
+                <label for="shelfCount">Number of Shelves:</label>
+                <input type="number" id="shelfCount" min="1" max="20" value="8">
+                <button id="btnSaveSettings" class="btn btn-primary">SAVE</button>
+            </div>
+            <div class="settings-section">
+                <h3>Custom Shelves</h3>
+                <div id="customShelvesList"></div>
+                <div class="custom-shelf-input">
+                    <input type="text" id="newShelfName" placeholder="New shelf name...">
+                    <button id="btnAddCustomShelf" class="btn btn-secondary">ADD</button>
+                </div>
+            </div>
+            <button id="btnCancelSettings" class="btn btn-secondary">BACK</button>
+        </div>
+    </div>
+
+    <script src="db.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
