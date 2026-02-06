@@ -316,8 +316,62 @@ h3 {
     cursor: pointer;
 }
 
+/* Count Sheet */
+.count-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.count-actions button {
+    flex: 1;
+}
+
+.count-items-container {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    background: #2a2a3e;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.count-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 8px;
+    background: #1a1a2e;
+    border-radius: 8px;
+    border-left: 4px solid #4a90e2;
+}
+
+.count-checkbox {
+    width: 24px;
+    height: 24px;
+    margin-right: 15px;
+    cursor: pointer;
+    accent-color: #27ae60;
+}
+
+.count-item-info {
+    flex: 1;
+}
+
+.count-barcode {
+    font-family: monospace;
+    font-size: 1.1em;
+    margin-bottom: 3px;
+}
+
+.count-shelf {
+    color: #888;
+    font-size: 0.9em;
+}
+
 /* Scrollbar Styling */
-.results-container::-webkit-scrollbar {
+.results-container::-webkit-scrollbar,
+.count-items-container::-webkit-scrollbar {
     width: 8px;
 }
 

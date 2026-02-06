@@ -17,6 +17,7 @@ function setupEventListeners() {
     // Main menu buttons
     document.getElementById('btnAdd').addEventListener('click', showAddMode);
     document.getElementById('btnFind').addEventListener('click', showFindMode);
+    document.getElementById('btnCounts').addEventListener('click', showCountSheet);
     document.getElementById('btnSettings').addEventListener('click', showSettings);
     document.getElementById('btnClear').addEventListener('click', handleClear);
 
@@ -30,6 +31,12 @@ function setupEventListeners() {
     // Find mode
     document.getElementById('searchInput').addEventListener('input', handleSearch);
     document.getElementById('btnCancelFind').addEventListener('click', showMainMenu);
+
+    // Count sheet
+    document.getElementById('countFilter').addEventListener('input', handleCountFilter);
+    document.getElementById('btnSelectAll').addEventListener('click', toggleSelectAll);
+    document.getElementById('btnGeneratePDF').addEventListener('click', generateCountSheetPDF);
+    document.getElementById('btnCancelCount').addEventListener('click', showMainMenu);
 
     // Settings
     document.getElementById('btnSaveSettings').addEventListener('click', saveSettings);
@@ -174,6 +181,185 @@ async function deleteItem(barcode) {
     } catch (error) {
         console.error('Error deleting item:', error);
         alert('Error deleting item: ' + error.message);
+    }
+}
+
+// Count sheet mode
+let countSheetItems = [];
+let countSheetSelected = new Set();
+
+async function showCountSheet() {
+    showScreen('countSheetMode');
+    document.getElementById('countFilter').value = '';
+    countSheetSelected.clear();
+    await loadCountSheetItems();
+}
+
+async function loadCountSheetItems() {
+    const query = document.getElementById('countFilter').value;
+    countSheetItems = await db.searchItems(query);
+    renderCountSheetItems();
+}
+
+function renderCountSheetItems() {
+    const container = document.getElementById('countItemsContainer');
+
+    if (countSheetItems.length === 0) {
+        container.innerHTML = '<div class="empty-message">No items in inventory</div>';
+        return;
+    }
+
+    container.innerHTML = countSheetItems.map(item => `
+        <div class="count-item">
+            <input
+                type="checkbox"
+                class="count-checkbox"
+                data-barcode="${item.barcode}"
+                ${countSheetSelected.has(item.barcode) ? 'checked' : ''}
+                onchange="toggleCountItem('${item.barcode}')"
+            >
+            <div class="count-item-info">
+                <div class="count-barcode">${item.barcode}</div>
+                <div class="count-shelf">Shelf: ${item.shelf}</div>
+            </div>
+        </div>
+    `).join('');
+
+    updateSelectAllButton();
+}
+
+function toggleCountItem(barcode) {
+    if (countSheetSelected.has(barcode)) {
+        countSheetSelected.delete(barcode);
+    } else {
+        countSheetSelected.add(barcode);
+    }
+    updateSelectAllButton();
+}
+
+function toggleSelectAll() {
+    if (countSheetSelected.size === countSheetItems.length) {
+        // Deselect all
+        countSheetSelected.clear();
+    } else {
+        // Select all
+        countSheetSelected.clear();
+        countSheetItems.forEach(item => countSheetSelected.add(item.barcode));
+    }
+    renderCountSheetItems();
+}
+
+function updateSelectAllButton() {
+    const btn = document.getElementById('btnSelectAll');
+    btn.textContent = countSheetSelected.size === countSheetItems.length
+        ? 'DESELECT ALL'
+        : 'SELECT ALL';
+}
+
+async function handleCountFilter() {
+    await loadCountSheetItems();
+}
+
+async function generateCountSheetPDF() {
+    if (countSheetSelected.size === 0) {
+        alert('Please select at least one item');
+        return;
+    }
+
+    // Get selected items
+    const selectedItems = countSheetItems.filter(item =>
+        countSheetSelected.has(item.barcode)
+    );
+
+    // Generate PDF using jsPDF
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'pt',
+        format: 'letter'
+    });
+
+    // Title
+    doc.setFontSize(11);
+    doc.text('NAME & Number: ___________________________', 50, 60);
+    doc.text('DATE: _______________', 500, 60);
+
+    // Table
+    const tableData = selectedItems.map(item => [
+        '', // Checkbox column
+        item.barcode,
+        '', // Description
+        '', // Discrepancy Label/Bag
+        '', // Comments
+        '', // PPLET #
+        '', // QTY
+        '', // LABELS
+        '', // OB Labels
+        '', // TIME STARTED
+        ''  // TIME FINISHED
+    ]);
+
+    doc.autoTable({
+        startY: 82,
+        head: [[
+            '✓',
+            'PART NUMBER',
+            'DESCRIPTION',
+            'Discrepancy\nLabel/Bag',
+            'COMMENTS',
+            'PPLET #',
+            'QTY',
+            'LABELS',
+            'OB Labels',
+            'TIME\nSTARTED',
+            'TIME\nFINISHED'
+        ]],
+        body: tableData,
+        theme: 'grid',
+        styles: {
+            fontSize: 9,
+            cellPadding: 3,
+            lineColor: [0, 0, 0],
+            lineWidth: 0.5
+        },
+        headStyles: {
+            fillColor: [0, 0, 0],
+            textColor: [255, 255, 255],
+            fontSize: 7,
+            fontStyle: 'bold',
+            halign: 'center',
+            valign: 'middle'
+        },
+        bodyStyles: {
+            fillColor: [255, 255, 255],
+            textColor: [0, 0, 0]
+        },
+        alternateRowStyles: {
+            fillColor: [230, 230, 230]
+        },
+        columnStyles: {
+            0: { cellWidth: 18, halign: 'center' },   // ✓
+            1: { cellWidth: 96, halign: 'left' },     // PART NUMBER
+            2: { cellWidth: 110, halign: 'left' },    // DESCRIPTION
+            3: { cellWidth: 93, halign: 'left' },     // Discrepancy
+            4: { cellWidth: 106, halign: 'left' },    // COMMENTS
+            5: { cellWidth: 43, halign: 'center' },   // PPLET #
+            6: { cellWidth: 43, halign: 'center' },   // QTY
+            7: { cellWidth: 50, halign: 'center' },   // LABELS
+            8: { cellWidth: 50, halign: 'center' },   // OB Labels
+            9: { cellWidth: 54, halign: 'center' },   // TIME STARTED
+            10: { cellWidth: 55, halign: 'center' }   // TIME FINISHED
+        },
+        margin: { left: 37 }
+    });
+
+    // Save or print
+    doc.save('count-sheet.pdf');
+
+    // Also offer to print
+    if (confirm('PDF saved! Would you like to print it now?')) {
+        doc.autoPrint();
+        window.open(doc.output('bloburl'), '_blank');
     }
 }
 
