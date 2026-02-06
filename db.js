@@ -179,4 +179,62 @@ class QuickShelfDB {
             request.onerror = () => reject(request.error);
         });
     }
+
+    async exportAllData() {
+        return new Promise((resolve, reject) => {
+            const itemsPromise = this.searchItems('');
+            const settingsPromise = this.getSettings();
+
+            Promise.all([itemsPromise, settingsPromise])
+                .then(([items, settings]) => {
+                    const backup = {
+                        version: 1,
+                        exportDate: new Date().toISOString(),
+                        items: items,
+                        settings: settings
+                    };
+                    resolve(backup);
+                })
+                .catch(reject);
+        });
+    }
+
+    async importAllData(backup) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                // Validate backup format
+                if (!backup.items || !backup.settings) {
+                    throw new Error('Invalid backup format');
+                }
+
+                // Clear existing data
+                await this.clearAll();
+
+                // Import items
+                const transaction = this.db.transaction(['items', 'settings'], 'readwrite');
+                const itemStore = transaction.objectStore('items');
+                const settingsStore = transaction.objectStore('settings');
+
+                // Import each item
+                for (const item of backup.items) {
+                    await new Promise((res, rej) => {
+                        const req = itemStore.put(item);
+                        req.onsuccess = () => res();
+                        req.onerror = () => rej(req.error);
+                    });
+                }
+
+                // Import settings
+                await new Promise((res, rej) => {
+                    const req = settingsStore.put(backup.settings);
+                    req.onsuccess = () => res();
+                    req.onerror = () => rej(req.error);
+                });
+
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
 }

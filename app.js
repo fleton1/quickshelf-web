@@ -55,6 +55,11 @@ function setupEventListeners() {
     // Settings
     document.getElementById('btnSaveSettings').addEventListener('click', saveSettings);
     document.getElementById('btnAddCustomShelf').addEventListener('click', addCustomShelf);
+    document.getElementById('btnExportData').addEventListener('click', exportBackup);
+    document.getElementById('btnImportData').addEventListener('click', () => {
+        document.getElementById('fileImport').click();
+    });
+    document.getElementById('fileImport').addEventListener('change', importBackup);
     document.getElementById('btnCancelSettings').addEventListener('click', showMainMenu);
 }
 
@@ -510,6 +515,60 @@ function renderCustomShelves() {
             <button onclick="removeCustomShelf('${name}')">Remove</button>
         </div>
     `).join('');
+}
+
+// Backup & Restore
+async function exportBackup() {
+    try {
+        const data = await db.exportAllData();
+
+        // Create JSON blob
+        const json = JSON.stringify(data, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+
+        // Create download link
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `quickshelf-backup-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        alert('Backup exported successfully!');
+    } catch (error) {
+        console.error('Export error:', error);
+        alert('Error exporting backup: ' + error.message);
+    }
+}
+
+async function importBackup(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Reset file input
+    event.target.value = '';
+
+    if (!confirm('This will replace ALL current data. Continue?')) {
+        return;
+    }
+
+    try {
+        const text = await file.text();
+        const backup = JSON.parse(text);
+
+        await db.importAllData(backup);
+
+        // Reload settings
+        settings = await db.getSettings();
+
+        alert('Backup restored successfully!');
+        showMainMenu();
+    } catch (error) {
+        console.error('Import error:', error);
+        alert('Error importing backup: ' + error.message);
+    }
 }
 
 // Theme management
