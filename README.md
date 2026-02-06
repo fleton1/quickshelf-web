@@ -4,9 +4,9 @@
 
 ## Features
 
-- **ADD mode**: Scan barcodes with a hand scanner → select shelf location
+- **ADD mode**: Scan barcodes with a hand scanner → select shelf → fill in details (description, qty, labels, etc.)
 - **FIND mode**: Search inventory, mark items complete (✓), delete items (✕)
-- **COUNT SHEET**: Select items → generate printable PDF for inventory counting
+- **SHEETS**: Select items → print or save count sheet PDF with pre-filled data
 - **Settings**: Configure number of shelves + custom shelf names
 - **CLEAR**: Delete all inventory items
 - **Offline support**: Works without internet connection via PWA
@@ -81,7 +81,14 @@ Copy all files to your web server directory (Apache, Nginx, etc.)
 2. Focus the input field (it should auto-focus)
 3. Scan barcode with hand scanner (or type + Enter for testing)
 4. Click the shelf where item is located
-5. Item is saved (or updated if barcode already exists)
+5. Fill in detail fields:
+   - **Description**: Item description
+   - **Discrepancy Label/Bag**: Label or bag number
+   - **Qty**: Quantity
+   - **Labels**: Number of labels printed
+   - **OB Labels**: Overstock bin labels
+   - **Comments**: Additional notes
+6. Click **SAVE** (or CANCEL to go back)
 
 ### FIND Items
 1. Click **FIND**
@@ -97,17 +104,19 @@ Copy all files to your web server directory (Apache, Nginx, etc.)
 4. Remove custom shelves
 5. Click **SAVE**
 
-### Count Sheet
-1. Click **COUNTS**
+### Count Sheets
+1. Click **SHEETS**
 2. Filter items if needed
 3. Select items to include (checkboxes)
 4. Click **SELECT ALL** / **DESELECT ALL** to toggle all
-5. Click **PRINT / SAVE PDF**
-6. PDF downloads automatically
-7. Option to print immediately
+5. Choose action:
+   - **PRINT** - Opens print dialog directly
+   - **SAVE PDF** - Downloads PDF file
 
 The PDF is landscape letter format with 11 columns matching the Android app:
 - ✓, Part Number, Description, Discrepancy Label/Bag, Comments, PPLET #, Qty, Labels, OB Labels, Time Started, Time Finished
+- **Database fields are pre-filled** (description, qty, labels, etc.)
+- Blank fields are left empty for manual entry
 - Alternating row colors for easy reading
 - Ready for laser printer
 

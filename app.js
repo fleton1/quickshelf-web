@@ -1,6 +1,7 @@
 // QuickShelf Web App
 let db;
 let currentBarcode = null;
+let currentShelf = null;
 let settings = null;
 
 // Initialize app
@@ -17,7 +18,7 @@ function setupEventListeners() {
     // Main menu buttons
     document.getElementById('btnAdd').addEventListener('click', showAddMode);
     document.getElementById('btnFind').addEventListener('click', showFindMode);
-    document.getElementById('btnCounts').addEventListener('click', showCountSheet);
+    document.getElementById('btnSheets').addEventListener('click', showCountSheet);
     document.getElementById('btnSettings').addEventListener('click', showSettings);
     document.getElementById('btnClear').addEventListener('click', handleClear);
 
@@ -28,6 +29,10 @@ function setupEventListeners() {
     // Shelf picker
     document.getElementById('btnCancelShelf').addEventListener('click', showAddMode);
 
+    // Details form
+    document.getElementById('btnSaveDetails').addEventListener('click', saveItemDetails);
+    document.getElementById('btnCancelDetails').addEventListener('click', showAddMode);
+
     // Find mode
     document.getElementById('searchInput').addEventListener('input', handleSearch);
     document.getElementById('btnCancelFind').addEventListener('click', showMainMenu);
@@ -35,7 +40,8 @@ function setupEventListeners() {
     // Count sheet
     document.getElementById('countFilter').addEventListener('input', handleCountFilter);
     document.getElementById('btnSelectAll').addEventListener('click', toggleSelectAll);
-    document.getElementById('btnGeneratePDF').addEventListener('click', generateCountSheetPDF);
+    document.getElementById('btnPrintSheet').addEventListener('click', () => generateCountSheet(true));
+    document.getElementById('btnSavePDF').addEventListener('click', () => generateCountSheet(false));
     document.getElementById('btnCancelCount').addEventListener('click', showMainMenu);
 
     // Settings
@@ -103,7 +109,7 @@ async function showShelfPicker(barcode) {
         const btn = document.createElement('button');
         btn.className = 'shelf-btn';
         btn.textContent = `Shelf ${i}`;
-        btn.onclick = () => saveToShelf(barcode, i.toString());
+        btn.onclick = () => showDetailsForm(barcode, i.toString());
         grid.appendChild(btn);
     }
 
@@ -112,14 +118,54 @@ async function showShelfPicker(barcode) {
         const btn = document.createElement('button');
         btn.className = 'shelf-btn';
         btn.textContent = shelfName;
-        btn.onclick = () => saveToShelf(barcode, shelfName);
+        btn.onclick = () => showDetailsForm(barcode, shelfName);
         grid.appendChild(btn);
     });
 }
 
-async function saveToShelf(barcode, shelf) {
+async function showDetailsForm(barcode, shelf) {
+    currentBarcode = barcode;
+    currentShelf = shelf;
+
+    showScreen('detailsForm');
+    document.getElementById('detailBarcode').textContent = barcode;
+    document.getElementById('detailShelf').textContent = `Shelf: ${shelf}`;
+
+    // Check if item exists and pre-fill
+    const existingItem = await db.getItem(barcode);
+    if (existingItem) {
+        document.getElementById('inputDescription').value = existingItem.description || '';
+        document.getElementById('inputDiscrepancy').value = existingItem.discrepancy || '';
+        document.getElementById('inputQty').value = existingItem.qty || '';
+        document.getElementById('inputLabels').value = existingItem.labels || '';
+        document.getElementById('inputOBLabels').value = existingItem.ob_labels || '';
+        document.getElementById('inputComments').value = existingItem.comments || '';
+    } else {
+        // Clear form for new item
+        document.getElementById('inputDescription').value = '';
+        document.getElementById('inputDiscrepancy').value = '';
+        document.getElementById('inputQty').value = '';
+        document.getElementById('inputLabels').value = '';
+        document.getElementById('inputOBLabels').value = '';
+        document.getElementById('inputComments').value = '';
+    }
+
+    // Focus first input
+    document.getElementById('inputDescription').focus();
+}
+
+async function saveItemDetails() {
+    const details = {
+        description: document.getElementById('inputDescription').value.trim(),
+        discrepancy: document.getElementById('inputDiscrepancy').value.trim(),
+        qty: document.getElementById('inputQty').value.trim(),
+        labels: document.getElementById('inputLabels').value.trim(),
+        ob_labels: document.getElementById('inputOBLabels').value.trim(),
+        comments: document.getElementById('inputComments').value.trim()
+    };
+
     try {
-        await db.saveItem(barcode, shelf);
+        await db.saveItem(currentBarcode, currentShelf, details);
         showAddMode();
     } catch (error) {
         console.error('Error saving item:', error);
@@ -260,7 +306,7 @@ async function handleCountFilter() {
     await loadCountSheetItems();
 }
 
-async function generateCountSheetPDF() {
+async function generateCountSheet(printMode) {
     if (countSheetSelected.size === 0) {
         alert('Please select at least one item');
         return;
@@ -284,19 +330,19 @@ async function generateCountSheetPDF() {
     doc.text('NAME & Number: ___________________________', 50, 60);
     doc.text('DATE: _______________', 500, 60);
 
-    // Table
+    // Table - pre-fill data from database
     const tableData = selectedItems.map(item => [
-        '', // Checkbox column
-        item.barcode,
-        '', // Description
-        '', // Discrepancy Label/Bag
-        '', // Comments
-        '', // PPLET #
-        '', // QTY
-        '', // LABELS
-        '', // OB Labels
-        '', // TIME STARTED
-        ''  // TIME FINISHED
+        '', // Checkbox column (empty for manual checking)
+        item.barcode || '',
+        item.description || '',
+        item.discrepancy || '',
+        item.comments || '',
+        '', // PPLET # (always blank)
+        item.qty || '',
+        item.labels || '',
+        item.ob_labels || '',
+        '', // TIME STARTED (blank for manual entry)
+        ''  // TIME FINISHED (blank for manual entry)
     ]);
 
     doc.autoTable({
@@ -353,13 +399,13 @@ async function generateCountSheetPDF() {
         margin: { left: 37 }
     });
 
-    // Save or print
-    doc.save('count-sheet.pdf');
-
-    // Also offer to print
-    if (confirm('PDF saved! Would you like to print it now?')) {
+    if (printMode) {
+        // Print mode - open print dialog
         doc.autoPrint();
         window.open(doc.output('bloburl'), '_blank');
+    } else {
+        // Save mode - download PDF
+        doc.save('count-sheet.pdf');
     }
 }
 

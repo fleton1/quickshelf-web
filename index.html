@@ -18,7 +18,7 @@
         <div id="mainMenu" class="menu active">
             <button id="btnAdd" class="btn btn-primary">ADD</button>
             <button id="btnFind" class="btn btn-primary">FIND</button>
-            <button id="btnCounts" class="btn btn-primary">COUNTS</button>
+            <button id="btnSheets" class="btn btn-primary">SHEETS</button>
             <button id="btnSettings" class="btn btn-secondary">SETTINGS</button>
             <button id="btnClear" class="btn btn-danger">CLEAR</button>
         </div>
@@ -46,6 +46,49 @@
             <button id="btnCancelShelf" class="btn btn-secondary">BACK</button>
         </div>
 
+        <!-- Item Details Form -->
+        <div id="detailsForm" class="screen">
+            <h2>Item Details</h2>
+            <p class="barcode-display" id="detailBarcode"></p>
+            <p class="shelf-display" id="detailShelf"></p>
+
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" id="inputDescription" class="form-input" placeholder="Item description...">
+            </div>
+
+            <div class="form-group">
+                <label>Discrepancy Label/Bag</label>
+                <input type="text" id="inputDiscrepancy" class="form-input" placeholder="Label or bag number...">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Qty</label>
+                    <input type="text" id="inputQty" class="form-input" placeholder="Quantity...">
+                </div>
+                <div class="form-group">
+                    <label>Labels</label>
+                    <input type="text" id="inputLabels" class="form-input" placeholder="# labels...">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>OB Labels</label>
+                <input type="text" id="inputOBLabels" class="form-input" placeholder="Overstock bin labels...">
+            </div>
+
+            <div class="form-group">
+                <label>Comments</label>
+                <textarea id="inputComments" class="form-input" rows="3" placeholder="Additional notes..."></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button id="btnSaveDetails" class="btn btn-success">SAVE</button>
+                <button id="btnCancelDetails" class="btn btn-secondary">CANCEL</button>
+            </div>
+        </div>
+
         <!-- Find Mode -->
         <div id="findMode" class="screen">
             <h2>Find Item</h2>
@@ -62,7 +105,7 @@
 
         <!-- Count Sheet Mode -->
         <div id="countSheetMode" class="screen">
-            <h2>Count Sheet</h2>
+            <h2>Count Sheets</h2>
             <input
                 type="text"
                 id="countFilter"
@@ -75,7 +118,8 @@
             </div>
             <div id="countItemsContainer" class="count-items-container"></div>
             <div class="count-actions">
-                <button id="btnGeneratePDF" class="btn btn-success">PRINT / SAVE PDF</button>
+                <button id="btnPrintSheet" class="btn btn-success">PRINT</button>
+                <button id="btnSavePDF" class="btn btn-primary">SAVE PDF</button>
                 <button id="btnCancelCount" class="btn btn-secondary">BACK</button>
             </div>
         </div>

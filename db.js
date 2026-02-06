@@ -2,7 +2,7 @@
 class QuickShelfDB {
     constructor() {
         this.dbName = 'quickshelf';
-        this.version = 1;
+        this.version = 2;
         this.db = null;
     }
 
@@ -18,6 +18,7 @@ class QuickShelfDB {
 
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
+                const oldVersion = event.oldVersion;
 
                 // Create items store
                 if (!db.objectStoreNames.contains('items')) {
@@ -30,11 +31,13 @@ class QuickShelfDB {
                 if (!db.objectStoreNames.contains('settings')) {
                     db.createObjectStore('settings', { keyPath: 'key' });
                 }
+
+                // Version 2: Add detail fields (migration not needed, fields are optional)
             };
         });
     }
 
-    async saveItem(barcode, shelf) {
+    async saveItem(barcode, shelf, details = {}) {
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(['items'], 'readwrite');
             const store = transaction.objectStore('items');
@@ -43,11 +46,28 @@ class QuickShelfDB {
                 barcode: barcode,
                 shelf: shelf,
                 completed: 0,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                description: details.description || '',
+                discrepancy: details.discrepancy || '',
+                qty: details.qty || '',
+                labels: details.labels || '',
+                ob_labels: details.ob_labels || '',
+                comments: details.comments || ''
             };
 
             const request = store.put(item);
             request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async getItem(barcode) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['items'], 'readonly');
+            const store = transaction.objectStore('items');
+            const request = store.get(barcode);
+
+            request.onsuccess = () => resolve(request.result);
             request.onerror = () => reject(request.error);
         });
     }
