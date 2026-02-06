@@ -583,6 +583,21 @@ textarea.form-input {
     cursor: pointer;
 }
 
+.backup-info {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    margin-bottom: 15px;
+}
+
+.backup-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.backup-actions button {
+    flex: 1;
+}
+
 /* Count Sheet */
 .count-actions {
     display: flex;
