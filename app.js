@@ -10,11 +10,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     await db.init();
     settings = await db.getSettings();
 
+    loadTheme();
     setupEventListeners();
     registerServiceWorker();
 });
 
 function setupEventListeners() {
+    // Theme picker
+    document.getElementById('btnThemePicker').addEventListener('click', showThemePicker);
+    document.getElementById('btnCloseTheme').addEventListener('click', closeThemePicker);
+    document.querySelectorAll('.theme-option').forEach(btn => {
+        btn.addEventListener('click', () => changeTheme(btn.dataset.theme));
+    });
+
     // Main menu buttons
     document.getElementById('btnAdd').addEventListener('click', showAddMode);
     document.getElementById('btnFind').addEventListener('click', showFindMode);
@@ -502,6 +510,33 @@ function renderCustomShelves() {
             <button onclick="removeCustomShelf('${name}')">Remove</button>
         </div>
     `).join('');
+}
+
+// Theme management
+function loadTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark-navy';
+    document.body.className = savedTheme;
+    updateActiveTheme(savedTheme);
+}
+
+function showThemePicker() {
+    document.getElementById('themeModal').classList.add('active');
+}
+
+function closeThemePicker() {
+    document.getElementById('themeModal').classList.remove('active');
+}
+
+function changeTheme(theme) {
+    document.body.className = theme;
+    localStorage.setItem('theme', theme);
+    updateActiveTheme(theme);
+}
+
+function updateActiveTheme(theme) {
+    document.querySelectorAll('.theme-option').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === theme);
+    });
 }
 
 // Service Worker registration
