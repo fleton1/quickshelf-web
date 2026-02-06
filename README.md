@@ -6,6 +6,7 @@
 
 - **ADD mode**: Scan barcodes with a hand scanner → select shelf location
 - **FIND mode**: Search inventory, mark items complete (✓), delete items (✕)
+- **COUNT SHEET**: Select items → generate printable PDF for inventory counting
 - **Settings**: Configure number of shelves + custom shelf names
 - **CLEAR**: Delete all inventory items
 - **Offline support**: Works without internet connection via PWA
@@ -96,6 +97,20 @@ Copy all files to your web server directory (Apache, Nginx, etc.)
 4. Remove custom shelves
 5. Click **SAVE**
 
+### Count Sheet
+1. Click **COUNTS**
+2. Filter items if needed
+3. Select items to include (checkboxes)
+4. Click **SELECT ALL** / **DESELECT ALL** to toggle all
+5. Click **PRINT / SAVE PDF**
+6. PDF downloads automatically
+7. Option to print immediately
+
+The PDF is landscape letter format with 11 columns matching the Android app:
+- ✓, Part Number, Description, Discrepancy Label/Bag, Comments, PPLET #, Qty, Labels, OB Labels, Time Started, Time Finished
+- Alternating row colors for easy reading
+- Ready for laser printer
+
 ### Clear All
 1. Click **CLEAR**
 2. Confirm twice (safety)
@@ -105,7 +120,8 @@ Copy all files to your web server directory (Apache, Nginx, etc.)
 
 - **Storage**: IndexedDB (browser database, no server needed)
 - **Offline**: Service Worker caches all files
-- **Framework**: Vanilla JavaScript (no dependencies)
+- **Framework**: Vanilla JavaScript (minimal dependencies)
+- **PDF Generation**: jsPDF + autoTable plugin
 - **Styling**: Custom CSS, dark theme
 - **PWA**: Manifest + service worker for installability
 
@@ -141,6 +157,7 @@ Possible additions:
 |---------|---------|-----|
 | Scanner | Camera (ZXing) | Hand scanner (keyboard) |
 | Storage | SQLite | IndexedDB |
+| Count Sheet | ✅ PDF generation | ✅ PDF generation |
 | Offline | Native | PWA (service worker) |
 | Install | APK | Browser install prompt |
 | Platform | Android only | Any device with browser |
