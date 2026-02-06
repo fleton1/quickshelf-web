@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quickshelf-v4';
+const CACHE_NAME = 'quickshelf-v5';
 const urlsToCache = [
   './',
   './index.html',

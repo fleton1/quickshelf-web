@@ -132,6 +132,20 @@ The PDF is landscape letter format with 11 columns matching the Android app:
    - **Pastel Pink** - Soft pink with sage and periwinkle
 3. Theme preference saved automatically
 
+### Backup & Restore
+1. Click **SETTINGS**
+2. Scroll to "Backup & Restore" section
+3. **Export Backup**:
+   - Downloads `quickshelf-backup-YYYY-MM-DD.json`
+   - Contains all items + settings
+   - Keep this file safe!
+4. **Import Backup**:
+   - Select JSON backup file
+   - Confirms before replacing all data
+   - Restores everything from backup
+
+**Recommended**: Export backup regularly, especially before clearing data
+
 ### Clear All
 1. Click **CLEAR**
 2. Confirm twice (safety)
@@ -164,10 +178,9 @@ Works on all modern browsers:
 ## Future Enhancements
 
 Possible additions:
-- [ ] Export/import data (JSON/CSV)
+- [x] Export/import data (JSON) - **DONE**
 - [ ] Multi-device sync (backend + API)
 - [ ] Barcode printing
-- [ ] Quantity tracking
 - [ ] Categories/tags
 - [ ] Statistics/reports
 - [ ] Bluetooth scanner support
