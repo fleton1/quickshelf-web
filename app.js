@@ -417,14 +417,23 @@ async function generateCountSheet(printMode) {
     console.log('PDF generated, selectedItems count:', selectedItems.length);
 
     if (printMode) {
-        console.log('Print mode - attempting to open PDF');
+        console.log('Print mode - forcing download to bypass Firefox PDF viewer');
 
-        // Try simple download approach instead of print preview
-        // This avoids the "preparing preview" hang completely
-        const timestamp = new Date().toISOString().split('T')[0];
-        doc.save(`count-sheet-${timestamp}.pdf`);
+        // Force download without opening in browser (fixes Firefox hang)
+        const pdfBlob = doc.output('blob');
+        const url = URL.createObjectURL(pdfBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `count-sheet-${new Date().toISOString().split('T')[0]}.pdf`;
+        a.setAttribute('type', 'application/octet-stream'); // Force download
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
 
-        alert('PDF downloaded! Open the file and print from there to avoid browser print preview issues.');
+        // Clean up
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+
+        alert('PDF downloaded! Open the file from Downloads folder and print from there.');
     } else {
         // Save mode - download PDF
         console.log('Save mode - downloading PDF');
