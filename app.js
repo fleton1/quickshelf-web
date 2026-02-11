@@ -530,11 +530,17 @@ function renderCustomShelves() {
 // Backup & Restore
 async function exportBackup() {
     try {
+        console.log('Starting export...');
         const data = await db.exportAllData();
+        console.log('Export data:', data);
+        console.log('Items count:', data?.items?.length);
+        console.log('Settings:', data?.settings);
 
         // Create JSON blob
         const json = JSON.stringify(data, null, 2);
+        console.log('JSON length:', json.length);
         const blob = new Blob([json], { type: 'application/json' });
+        console.log('Blob size:', blob.size);
 
         // Create download link
         const url = URL.createObjectURL(blob);
@@ -546,7 +552,7 @@ async function exportBackup() {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        alert('Backup exported successfully!');
+        alert(`Backup exported! ${data.items.length} items, ${blob.size} bytes`);
     } catch (error) {
         console.error('Export error:', error);
         alert('Error exporting backup: ' + error.message);
