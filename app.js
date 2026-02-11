@@ -420,12 +420,34 @@ async function generateCountSheet(printMode) {
         const printWindow = window.open(blobUrl);
 
         if (printWindow) {
-            printWindow.addEventListener('load', function() {
-                printWindow.focus();
-                setTimeout(() => {
-                    printWindow.print();
-                }, 500);
-            });
+            // Use a more reliable approach - poll until document is ready
+            const checkLoaded = setInterval(() => {
+                try {
+                    if (printWindow.document && printWindow.document.readyState === 'complete') {
+                        clearInterval(checkLoaded);
+                        printWindow.focus();
+                        // Give PDF viewer extra time to render
+                        setTimeout(() => {
+                            printWindow.print();
+                            // Clean up after print dialog closes (or timeout)
+                            setTimeout(() => {
+                                printWindow.close();
+                                URL.revokeObjectURL(blobUrl);
+                            }, 1000);
+                        }, 1000);
+                    }
+                } catch (e) {
+                    // Cross-origin or window closed
+                    clearInterval(checkLoaded);
+                    URL.revokeObjectURL(blobUrl);
+                }
+            }, 100);
+
+            // Fallback timeout in case something goes wrong
+            setTimeout(() => {
+                clearInterval(checkLoaded);
+                URL.revokeObjectURL(blobUrl);
+            }, 10000);
         } else {
             alert('Please allow popups to print. Use "SAVE PDF" instead.');
             URL.revokeObjectURL(blobUrl);
