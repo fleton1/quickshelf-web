@@ -413,39 +413,35 @@ async function generateCountSheet(printMode) {
     });
 
     if (printMode) {
-        // Print mode - use hidden iframe for more reliable printing
+        // Print mode - open PDF in new window for browser's native print handling
         const pdfBlob = doc.output('blob');
         const blobUrl = URL.createObjectURL(pdfBlob);
 
-        // Create hidden iframe
-        const iframe = document.createElement('iframe');
-        iframe.style.position = 'fixed';
-        iframe.style.right = '0';
-        iframe.style.bottom = '0';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = '0';
-        document.body.appendChild(iframe);
+        // Open in new window
+        const printWindow = window.open(blobUrl, '_blank');
 
-        iframe.onload = function() {
-            try {
-                iframe.contentWindow.focus();
-                iframe.contentWindow.print();
+        if (!printWindow) {
+            // Popup blocked - fall back to download
+            alert('Popup blocked. Please allow popups or use "SAVE PDF" instead.');
+            URL.revokeObjectURL(blobUrl);
+        } else {
+            // Wait for PDF to load, then trigger print
+            printWindow.onload = function() {
+                try {
+                    // Give the PDF viewer a moment to fully render
+                    setTimeout(() => {
+                        printWindow.print();
+                    }, 250);
+                } catch (e) {
+                    console.error('Print error:', e);
+                }
+            };
 
-                // Clean up after print dialog closes (give user time to print)
-                setTimeout(() => {
-                    document.body.removeChild(iframe);
-                    URL.revokeObjectURL(blobUrl);
-                }, 1000);
-            } catch (e) {
-                console.error('Print error:', e);
-                document.body.removeChild(iframe);
+            // Clean up the blob URL after a delay (user should have printed by then)
+            setTimeout(() => {
                 URL.revokeObjectURL(blobUrl);
-                alert('Print failed. Please use "SAVE PDF" instead.');
-            }
-        };
-
-        iframe.src = blobUrl;
+            }, 60000); // 1 minute cleanup delay
+        }
     } else {
         // Save mode - download PDF
         doc.save('count-sheet.pdf');
