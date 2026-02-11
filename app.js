@@ -320,8 +320,6 @@ async function handleCountFilter() {
 }
 
 async function generateCountSheet(printMode) {
-    console.log('generateCountSheet called, printMode:', printMode);
-
     if (countSheetSelected.size === 0) {
         alert('Please select at least one item');
         return;
@@ -414,29 +412,13 @@ async function generateCountSheet(printMode) {
         margin: { left: 37 }
     });
 
-    console.log('PDF generated, selectedItems count:', selectedItems.length);
-
     if (printMode) {
-        console.log('Print mode - forcing download to bypass Firefox PDF viewer');
-
-        // Force download without opening in browser (fixes Firefox hang)
-        const pdfBlob = doc.output('blob');
-        const url = URL.createObjectURL(pdfBlob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `count-sheet-${new Date().toISOString().split('T')[0]}.pdf`;
-        a.setAttribute('type', 'application/octet-stream'); // Force download
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        // Clean up
-        setTimeout(() => URL.revokeObjectURL(url), 100);
-
-        alert('PDF downloaded! Open the file from Downloads folder and print from there.');
+        // Print mode - use autoPrint to trigger print dialog
+        doc.autoPrint();
+        const blobUrl = doc.output('bloburl');
+        window.open(blobUrl, '_blank');
     } else {
         // Save mode - download PDF
-        console.log('Save mode - downloading PDF');
         doc.save('count-sheet.pdf');
     }
 }
