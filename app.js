@@ -413,9 +413,27 @@ async function generateCountSheet(printMode) {
     });
 
     if (printMode) {
-        // Print mode - open print dialog
-        doc.autoPrint();
-        window.open(doc.output('bloburl'), '_blank');
+        // Print mode - use iframe approach for reliable printing
+        const pdfBlob = doc.output('blob');
+        const blobUrl = URL.createObjectURL(pdfBlob);
+
+        // Create hidden iframe
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = blobUrl;
+        document.body.appendChild(iframe);
+
+        // Wait for PDF to load, then print
+        iframe.onload = function() {
+            setTimeout(() => {
+                iframe.contentWindow.print();
+                // Clean up after a delay
+                setTimeout(() => {
+                    document.body.removeChild(iframe);
+                    URL.revokeObjectURL(blobUrl);
+                }, 1000);
+            }, 250);
+        };
     } else {
         // Save mode - download PDF
         doc.save('count-sheet.pdf');
