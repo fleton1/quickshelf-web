@@ -320,6 +320,8 @@ async function handleCountFilter() {
 }
 
 async function generateCountSheet(printMode) {
+    console.log('generateCountSheet called, printMode:', printMode);
+
     if (countSheetSelected.size === 0) {
         alert('Please select at least one item');
         return;
@@ -412,17 +414,20 @@ async function generateCountSheet(printMode) {
         margin: { left: 37 }
     });
 
+    console.log('PDF generated, selectedItems count:', selectedItems.length);
+
     if (printMode) {
-        // Print mode - use autoPrint to embed print command in PDF
-        doc.autoPrint();
+        console.log('Print mode - attempting to open PDF');
 
-        // Open PDF in new window - autoPrint will trigger print dialog automatically
-        const blobUrl = doc.output('bloburl');
-        window.open(blobUrl, '_blank');
+        // Try simple download approach instead of print preview
+        // This avoids the "preparing preview" hang completely
+        const timestamp = new Date().toISOString().split('T')[0];
+        doc.save(`count-sheet-${timestamp}.pdf`);
 
-        // Note: blob URL will be automatically cleaned up when window closes
+        alert('PDF downloaded! Open the file and print from there to avoid browser print preview issues.');
     } else {
         // Save mode - download PDF
+        console.log('Save mode - downloading PDF');
         doc.save('count-sheet.pdf');
     }
 }
