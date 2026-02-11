@@ -413,35 +413,14 @@ async function generateCountSheet(printMode) {
     });
 
     if (printMode) {
-        // Print mode - open PDF in new window for browser's native print handling
-        const pdfBlob = doc.output('blob');
-        const blobUrl = URL.createObjectURL(pdfBlob);
+        // Print mode - use autoPrint to embed print command in PDF
+        doc.autoPrint();
 
-        // Open in new window
-        const printWindow = window.open(blobUrl, '_blank');
+        // Open PDF in new window - autoPrint will trigger print dialog automatically
+        const blobUrl = doc.output('bloburl');
+        window.open(blobUrl, '_blank');
 
-        if (!printWindow) {
-            // Popup blocked - fall back to download
-            alert('Popup blocked. Please allow popups or use "SAVE PDF" instead.');
-            URL.revokeObjectURL(blobUrl);
-        } else {
-            // Wait for PDF to load, then trigger print
-            printWindow.onload = function() {
-                try {
-                    // Give the PDF viewer a moment to fully render
-                    setTimeout(() => {
-                        printWindow.print();
-                    }, 250);
-                } catch (e) {
-                    console.error('Print error:', e);
-                }
-            };
-
-            // Clean up the blob URL after a delay (user should have printed by then)
-            setTimeout(() => {
-                URL.revokeObjectURL(blobUrl);
-            }, 60000); // 1 minute cleanup delay
-        }
+        // Note: blob URL will be automatically cleaned up when window closes
     } else {
         // Save mode - download PDF
         doc.save('count-sheet.pdf');
