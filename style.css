@@ -116,17 +116,35 @@ header {
     position: relative;
     text-align: center;
     margin-bottom: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 h1 {
     font-size: 2.5em;
     color: var(--accent-primary);
+    flex: 1;
+}
+
+.header-right {
+    position: absolute;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.version {
+    font-size: 0.9em;
+    opacity: 0.6;
+    font-weight: normal;
 }
 
 .theme-icon {
-    position: absolute;
-    top: 0;
-    right: 0;
+    position: relative;
+    top: auto;
+    right: auto;
     background: var(--bg-secondary);
     border: 2px solid var(--border-color);
     color: var(--text-primary);
