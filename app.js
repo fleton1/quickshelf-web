@@ -375,7 +375,9 @@ function updateLabelsTotal() {
 
     countSheetItems.forEach(item => {
         if (countSheetSelected.has(item.barcode)) {
-            const labels = parseInt(item.labels) || 0;
+            // Remove commas and whitespace, then parse
+            const cleanedLabels = (item.labels || '').toString().replace(/[,\s]/g, '');
+            const labels = parseInt(cleanedLabels) || 0;
             total += labels;
         }
     });
@@ -383,7 +385,7 @@ function updateLabelsTotal() {
     // Update display
     const totalElement = document.getElementById('labelsTotalValue');
     if (totalElement) {
-        totalElement.textContent = total;
+        totalElement.textContent = total.toLocaleString(); // Format with commas for display
     }
 }
 
