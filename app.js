@@ -79,6 +79,7 @@ function showAddMode() {
     showScreen('addMode');
     document.getElementById('scanInput').value = '';
     document.getElementById('scanInput').focus();
+    window._createDuplicate = false; // Reset duplicate flag
 }
 
 function showFindMode() {
@@ -96,14 +97,21 @@ async function showSettings() {
 }
 
 // Add mode - hand scanner input
-function handleScan(e) {
+async function handleScan(e) {
     if (e.key === 'Enter') {
         e.preventDefault();
         const barcode = e.target.value.trim();
 
         if (barcode) {
             currentBarcode = barcode;
-            showShelfPicker(barcode);
+
+            // Check for duplicate
+            const existingItem = await db.checkDuplicate(barcode);
+            if (existingItem) {
+                showDuplicateModal(barcode, existingItem);
+            } else {
+                showShelfPicker(barcode);
+            }
         }
 
         e.target.value = '';
@@ -167,6 +175,31 @@ async function showDetailsForm(barcode, shelf) {
     document.getElementById('inputDescription').focus();
 }
 
+// Duplicate modal functions
+async function showDuplicateModal(barcode, existingItem) {
+    showScreen('duplicateModal');
+    document.getElementById('duplicateBarcode').textContent = barcode;
+    document.getElementById('existingItemShelf').textContent = `Shelf: ${existingItem.shelf}`;
+    document.getElementById('existingItemDesc').textContent = existingItem.description || '(No description)';
+}
+
+function handleDuplicateModify() {
+    // Close modal and proceed to shelf picker (normal flow)
+    window._createDuplicate = false;
+    showShelfPicker(currentBarcode);
+}
+
+function handleDuplicateCreateNew() {
+    // Set flag to create duplicate
+    window._createDuplicate = true;
+    showShelfPicker(currentBarcode);
+}
+
+function closeDuplicateModal() {
+    // Return to add mode
+    showAddMode();
+}
+
 async function saveItemDetails() {
     const details = {
         description: document.getElementById('inputDescription').value.trim(),
@@ -178,7 +211,13 @@ async function saveItemDetails() {
     };
 
     try {
-        await db.saveItem(currentBarcode, currentShelf, details);
+        // Check if we should create a duplicate
+        const allowDuplicate = window._createDuplicate || false;
+        await db.saveItem(currentBarcode, currentShelf, details, allowDuplicate);
+
+        // Reset flag
+        window._createDuplicate = false;
+
         showAddMode();
     } catch (error) {
         console.error('Error saving item:', error);
@@ -201,20 +240,26 @@ function renderResults(items) {
         return;
     }
 
-    container.innerHTML = items.map(item => `
-        <div class="result-item ${item.completed ? 'completed' : ''}" data-barcode="${item.barcode}">
-            <div class="result-info">
-                <div class="result-barcode">${item.barcode}</div>
-                <div class="result-shelf">Shelf: ${item.shelf}</div>
+    container.innerHTML = items.map(item => {
+        const displayBarcode = item.originalBarcode || item.barcode;
+        const isDuplicate = item.barcode !== displayBarcode;
+        const duplicateBadge = isDuplicate ? '<span class="duplicate-badge">Duplicate</span>' : '';
+
+        return `
+            <div class="result-item ${item.completed ? 'completed' : ''}" data-barcode="${item.barcode}">
+                <div class="result-info">
+                    <div class="result-barcode">${displayBarcode} ${duplicateBadge}</div>
+                    <div class="result-shelf">Shelf: ${item.shelf}</div>
+                </div>
+                <div class="result-actions">
+                    <button class="icon-btn check" onclick="toggleComplete('${item.barcode}')">
+                        ${item.completed ? '↺' : '✓'}
+                    </button>
+                    <button class="icon-btn delete" onclick="confirmDelete('${item.barcode}')">✕</button>
+                </div>
             </div>
-            <div class="result-actions">
-                <button class="icon-btn check" onclick="toggleComplete('${item.barcode}')">
-                    ${item.completed ? '↺' : '✓'}
-                </button>
-                <button class="icon-btn delete" onclick="confirmDelete('${item.barcode}')">✕</button>
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 async function toggleComplete(barcode) {
@@ -268,21 +313,27 @@ function renderCountSheetItems() {
         return;
     }
 
-    container.innerHTML = countSheetItems.map(item => `
-        <div class="count-item">
-            <input
-                type="checkbox"
-                class="count-checkbox"
-                data-barcode="${item.barcode}"
-                ${countSheetSelected.has(item.barcode) ? 'checked' : ''}
-                onchange="toggleCountItem('${item.barcode}')"
-            >
-            <div class="count-item-info">
-                <div class="count-barcode">${item.barcode}</div>
-                <div class="count-shelf">Shelf: ${item.shelf}</div>
+    container.innerHTML = countSheetItems.map(item => {
+        const displayBarcode = item.originalBarcode || item.barcode;
+        const isDuplicate = item.barcode !== displayBarcode;
+        const duplicateBadge = isDuplicate ? '<span class="duplicate-badge-small">Dup</span>' : '';
+
+        return `
+            <div class="count-item">
+                <input
+                    type="checkbox"
+                    class="count-checkbox"
+                    data-barcode="${item.barcode}"
+                    ${countSheetSelected.has(item.barcode) ? 'checked' : ''}
+                    onchange="toggleCountItem('${item.barcode}')"
+                >
+                <div class="count-item-info">
+                    <div class="count-barcode">${displayBarcode} ${duplicateBadge}</div>
+                    <div class="count-shelf">Shelf: ${item.shelf}</div>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 
     updateSelectAllButton();
 }
@@ -344,19 +395,25 @@ async function generateCountSheet(printMode) {
     doc.text('DATE: _______________', 500, 60);
 
     // Table - pre-fill data from database
-    const tableData = selectedItems.map(item => [
-        '', // Checkbox column (empty for manual checking)
-        item.barcode || '',
-        item.description || '',
-        item.discrepancy || '',
-        item.comments || '',
-        '', // PPLET # (always blank)
-        item.qty || '',
-        item.labels || '',
-        item.ob_labels || '',
-        '', // TIME STARTED (blank for manual entry)
-        ''  // TIME FINISHED (blank for manual entry)
-    ]);
+    const tableData = selectedItems.map(item => {
+        const displayBarcode = item.originalBarcode || item.barcode;
+        const isDuplicate = item.barcode !== displayBarcode;
+        const duplicateBadge = isDuplicate ? ' [Dup]' : '';
+
+        return [
+            '', // Checkbox column (empty for manual checking)
+            (displayBarcode || '') + duplicateBadge,
+            item.description || '',
+            item.discrepancy || '',
+            item.comments || '',
+            '', // PPLET # (always blank)
+            item.qty || '',
+            item.labels || '',
+            item.ob_labels || '',
+            '', // TIME STARTED (blank for manual entry)
+            ''  // TIME FINISHED (blank for manual entry)
+        ];
+    });
 
     doc.autoTable({
         startY: 82,

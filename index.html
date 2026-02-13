@@ -50,6 +50,39 @@
             <button id="btnCancelShelf" class="btn btn-secondary">BACK</button>
         </div>
 
+        <!-- Duplicate Barcode Modal -->
+        <div id="duplicateModal" class="screen">
+            <h2>Duplicate Barcode Detected</h2>
+            <p class="duplicate-warning">This barcode already exists in your inventory.</p>
+
+            <div class="duplicate-barcode-display">
+                <div class="barcode-label">Barcode:</div>
+                <div class="barcode-value" id="duplicateBarcode"></div>
+            </div>
+
+            <div class="existing-item-preview">
+                <h3>Existing Item:</h3>
+                <div class="preview-shelf" id="existingItemShelf"></div>
+                <div class="preview-desc" id="existingItemDesc"></div>
+            </div>
+
+            <div class="duplicate-question">
+                <p>What would you like to do?</p>
+            </div>
+
+            <div class="duplicate-actions">
+                <button onclick="handleDuplicateModify()" class="btn btn-primary">
+                    MODIFY EXISTING
+                </button>
+                <button onclick="handleDuplicateCreateNew()" class="btn btn-success">
+                    CREATE NEW ENTRY
+                </button>
+                <button onclick="closeDuplicateModal()" class="btn btn-secondary">
+                    CANCEL
+                </button>
+            </div>
+        </div>
+
         <!-- Item Details Form -->
         <div id="detailsForm" class="screen">
             <h2>Item Details</h2>

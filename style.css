@@ -689,6 +689,104 @@ textarea.form-input {
     background: var(--accent-secondary);
 }
 
+/* Duplicate Modal Styling */
+.duplicate-warning {
+    text-align: center;
+    color: var(--accent-danger);
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 20px;
+}
+
+.duplicate-barcode-display {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.barcode-label {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.barcode-value {
+    font-family: monospace;
+    font-size: 1.5em;
+    color: var(--accent-primary);
+    font-weight: bold;
+}
+
+.existing-item-preview {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.existing-item-preview h3 {
+    font-size: 1em;
+    margin-bottom: 10px;
+    color: var(--accent-primary);
+}
+
+.preview-shelf {
+    font-size: 1em;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.preview-desc {
+    font-size: 0.95em;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.duplicate-question {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.duplicate-question p {
+    font-size: 1.1em;
+    color: var(--text-primary);
+    font-weight: bold;
+}
+
+.duplicate-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.duplicate-badge {
+    display: inline-block;
+    background: var(--accent-danger);
+    color: white;
+    font-size: 0.7em;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    font-weight: bold;
+    vertical-align: middle;
+}
+
+.duplicate-badge-small {
+    display: inline-block;
+    background: var(--accent-danger);
+    color: white;
+    font-size: 0.6em;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 6px;
+    font-weight: bold;
+    vertical-align: middle;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
     h1 {
