@@ -336,6 +336,7 @@ function renderCountSheetItems() {
     }).join('');
 
     updateSelectAllButton();
+    updateLabelsTotal();
 }
 
 function toggleCountItem(barcode) {
@@ -345,6 +346,7 @@ function toggleCountItem(barcode) {
         countSheetSelected.add(barcode);
     }
     updateSelectAllButton();
+    updateLabelsTotal();
 }
 
 function toggleSelectAll() {
@@ -357,6 +359,7 @@ function toggleSelectAll() {
         countSheetItems.forEach(item => countSheetSelected.add(item.barcode));
     }
     renderCountSheetItems();
+    updateLabelsTotal();
 }
 
 function updateSelectAllButton() {
@@ -364,6 +367,24 @@ function updateSelectAllButton() {
     btn.textContent = countSheetSelected.size === countSheetItems.length
         ? 'DESELECT ALL'
         : 'SELECT ALL';
+}
+
+function updateLabelsTotal() {
+    // Calculate total labels for selected items
+    let total = 0;
+
+    countSheetItems.forEach(item => {
+        if (countSheetSelected.has(item.barcode)) {
+            const labels = parseInt(item.labels) || 0;
+            total += labels;
+        }
+    });
+
+    // Update display
+    const totalElement = document.getElementById('labelsTotalValue');
+    if (totalElement) {
+        totalElement.textContent = total;
+    }
 }
 
 async function handleCountFilter() {
