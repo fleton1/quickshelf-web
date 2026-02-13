@@ -37,13 +37,23 @@ class QuickShelfDB {
         });
     }
 
-    async saveItem(barcode, shelf, details = {}) {
+    async saveItem(barcode, shelf, details = {}, allowDuplicate = false) {
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(['items'], 'readwrite');
             const store = transaction.objectStore('items');
 
+            // Check if item already exists and allowDuplicate is true
+            let finalBarcode = barcode;
+            let originalBarcode = barcode;
+
+            if (allowDuplicate) {
+                // Create composite key with timestamp
+                finalBarcode = `${barcode}-${Date.now()}`;
+            }
+
             const item = {
-                barcode: barcode,
+                barcode: finalBarcode,
+                originalBarcode: originalBarcode,
                 shelf: shelf,
                 completed: 0,
                 timestamp: Date.now(),
@@ -72,6 +82,11 @@ class QuickShelfDB {
         });
     }
 
+    async checkDuplicate(barcode) {
+        // Simple wrapper to check if a barcode already exists
+        return this.getItem(barcode);
+    }
+
     async searchItems(query) {
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(['items'], 'readonly');
@@ -84,9 +99,11 @@ class QuickShelfDB {
                 // Filter by query if provided
                 if (query && query.trim() !== '') {
                     const lowerQuery = query.toLowerCase();
-                    items = items.filter(item =>
-                        item.barcode.toLowerCase().includes(lowerQuery)
-                    );
+                    items = items.filter(item => {
+                        // Search by originalBarcode (for duplicates) or barcode (for backward compatibility)
+                        const searchBarcode = (item.originalBarcode || item.barcode).toLowerCase();
+                        return searchBarcode.includes(lowerQuery);
+                    });
                 }
 
                 // Sort by timestamp (newest first)
