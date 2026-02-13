@@ -621,10 +621,36 @@ textarea.form-input {
     display: flex;
     gap: 10px;
     margin-bottom: 15px;
+    align-items: center;
 }
 
 .count-actions button {
     flex: 1;
+}
+
+.labels-total {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    background: var(--bg-secondary);
+    border: 2px solid var(--accent-success);
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
+.labels-total-label {
+    font-weight: bold;
+    color: var(--text-primary);
+    font-size: 0.95em;
+}
+
+.labels-total-value {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: var(--accent-success);
+    min-width: 30px;
+    text-align: right;
 }
 
 .count-items-container {
